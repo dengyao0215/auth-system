@@ -41,6 +41,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Autowired
     private SysMenuMapper sysMenuMapper;
 
+    /**
+     * 修改用户状态
+     * @param id
+     * @param status
+     */
     @Override
     public void updateUserStatus(Long id, Integer status) {
         //根据userid查询

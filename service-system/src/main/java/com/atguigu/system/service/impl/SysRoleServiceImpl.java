@@ -33,6 +33,11 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
 
+    /**
+     * 获取角色分配数据
+     * @param userId
+     * @return
+     */
     @Override
     public Map<String, Object> getRoleAssignData(Long userId) {
         //1 查询所有角色，返回list集合
@@ -63,11 +68,15 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         return map;
     }
 
+    /**
+     * 更新用户的角色分配
+     * @param assignRoleVo
+     */
     @Transactional
     @Override
     public void doAssign(AssignRoleVo assignRoleVo) {
 
-        LambdaQueryWrapper<SysUserRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+       /* LambdaQueryWrapper<SysUserRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(SysUserRole::getUserId, assignRoleVo.getUserId());
         sysUserRoleMapper.delete(lambdaQueryWrapper);
 
@@ -79,5 +88,29 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             sysUserRole.setUserId(assignRoleVo.getUserId());
             sysUserRoleMapper.insert(sysUserRole);
         }
+    }*/
+
+        // 创建一个查询条件的 LambdaQueryWrapper 对象
+        LambdaQueryWrapper<SysUserRole> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        // 设置查询条件，要求 SysUserRole 对象的 userId 属性与 assignRoleVo.getUserId() 相等
+        lambdaQueryWrapper.eq(SysUserRole::getUserId, assignRoleVo.getUserId());
+        // 执行删除操作，根据查询条件删除与该用户关联的角色记录
+        sysUserRoleMapper.delete(lambdaQueryWrapper);
+
+        // 获取角色ID列表
+        List<Long> roleIdList = assignRoleVo.getRoleIdList();
+
+        // 遍历角色ID列表，为该用户分配新的角色记录
+        for (Long roleId : roleIdList) {
+            // 创建一个新的 SysUserRole 对象
+            SysUserRole sysUserRole = new SysUserRole();
+            // 设置角色ID到 SysUserRole 对象的 roleId 属性
+            sysUserRole.setRoleId(roleId);
+            // 设置用户ID到 SysUserRole 对象的 userId 属性
+            sysUserRole.setUserId(assignRoleVo.getUserId());
+            // 执行插入操作，将 SysUserRole 对象插入到数据库中
+            sysUserRoleMapper.insert(sysUserRole);
+        }
     }
+
 }
